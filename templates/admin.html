@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - IT-4320 Trip Reservation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="menu">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('admin') }}">Admin</a>
+        <a href="{{ url_for('reserve_seat') }}">Reservations</a>
+    </div>
+
+    <!-- Admin Container -->
+    <div class="div-container">
+        <h1>Admin Panel</h1>
+
+        {% if not session.get('admin_logged_in') %}
+            <!-- Admin Login Form -->
+            <form method="POST" action="{{ url_for('admin') }}">
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username" required>
+
+                <label for="password">Password:</label>
+                <input type="password" name="password" id="password" required>
+
+                <input type="submit" value="Login">
+            </form>
+        {% else %}
+            <!-- Admin Dashboard View -->
+            <h2>Reservations Overview</h2>
+
+            {% if reservations %}
+                <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; margin-top: 20px;">
+                    <tr>
+                        <th>Passenger Name</th>
+                        <th>Seat (Row, Column)</th>
+                        <th>eTicket Number</th>
+                        <th>Created</th>
+                        <th>Delete</th>
+                    </tr>
+                    {% for res in reservations %}
+                    <tr>
+                        <td>{{ res.passengerName }}</td>
+                        <td>Row {{ res.seatRow }}, Column {{ res.seatColumn }}</td>
+                        <td>{{ res.eTicketNumber }}</td>
+                        <td>{{ res.created }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_reservation', reservation_id=res.id) }}" style="display: inline;">
+                                <input type="submit" value="Delete">
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+
+                <h3 style="margin-top: 30px;">Total Sales: ${{ total_sales }}</h3>
+
+            {% else %}
+                <p>No reservations found.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+</body>
+</html>

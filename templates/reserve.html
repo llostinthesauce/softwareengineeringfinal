@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reserve a Seat - IT-4320 Trip Reservation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="menu">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('admin') }}">Admin</a>
+        <a href="{{ url_for('reserve_seat') }}">Reservations</a>
+    </div>
+
+    <!-- Reservation Container -->
+    <div class="div-container">
+        <h1>Reserve Your Seat</h1>
+        <h2>Seating Chart</h2>
+        <p><strong>X</strong> = Reserved Seat &nbsp; : &nbsp; <strong>O</strong> = Available Seat</p>
+
+        <div style="background-color: #2a2a3b; padding: 20px; border-radius: 12px; display: inline-block;">
+            <pre style="font-size: 18px; text-align: left;">
+{% for row in seating_chart %}
+{{ row }}
+{% endfor %}
+            </pre>
+        </div>
+    </div>
+
+</body>
+</html>

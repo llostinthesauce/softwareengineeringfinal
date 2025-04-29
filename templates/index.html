@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IT-4320 Trip Reservation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class="menu">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('admin') }}">Admin</a>
+        <a href="{{ url_for('reserve_seat') }}">Reservations</a>
+    </div>
+
+    <!-- Splash Container -->
+    <div class="div-container">
+        <h1>IT-4320 Trip Reservation System</h1>
+        <p>Welcome to the IT-4320 reservation system. This serves as the final project for Corbin, Maddie, Ethan, and Gavin.</p>
+        <p>Use the select box below to choose whether to make a reservation or log in as administrator.</p>
+
+        <br><hr><br>
+
+        <!-- Dropdown Menu -->
+        <form action="#" method="GET" onsubmit="return handleSelection();">
+            <label for="menuSelect">Choose Menu Option:</label>
+            <select id="menuSelect" required>
+                <option value="">Choose an Option</option>
+                <option value="admin">Admin Login</option>
+                <option value="reserve">Reserve a Seat</option>
+            </select>
+            <br><br>
+            <input type="submit" value="Go">
+        </form>
+    </div>
+
+    <script>
+        function handleSelection() {
+            const choice = document.getElementById('menuSelect').value;
+            if (choice === "admin") {
+                window.location.href = "{{ url_for('admin') }}";
+            } else if (choice === "reserve") {
+                window.location.href = "{{ url_for('reserve_seat') }}";
+            }
+            return false; // Prevent default form submit
+        }
+    </script>
+
+</body>
+</html>
