@@ -56,7 +56,7 @@ def index():
 def reserve_seat():
     """Seat reservation page."""
     if request.method == "POST":
-        # TODO: Handle reservation form submission (later)
+        # TODO: Handle reservation form submission (later) - note from maddie. Please make first name entry labeled 'first_name'
         pass
 
     reservations = Reservation.query.all()
@@ -74,22 +74,49 @@ def reserve_seat():
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
-    """Admin login page (will also serve dashboard after login)."""
     if request.method == "POST":
-        # TODO: Handle admin login form submission (later)
-        pass
+        username = request.form["username"].strip()
+        password = request.form["password"].strip()
+
+        if not username or not password:
+            return render_template("admin.html", error="Please enter both username and password.")
+
+        admin = Admin.query.filter_by(username=username, password=password).first()
+
+        if admin:
+            session['admin_logged_in'] = True
+        else:
+            return render_template("admin.html", error="Invalid username/password com ")
+
+    if session.get('admin_logged_in'):
+        reservations = Reservation.query.all()
+        cost_matrix = get_cost_matrix()
+        seating_chart = [['O' for _ in range(4)] for _ in range(12)]
+        total_sales = 0
+
+        for res in reservations:
+            row, col = res.seatRow, res.seatColumn
+            seating_chart[row][col] = 'X'
+            total_sales += cost_matrix[row][col]
+
+        return render_template("admin.html",
+                               reservations=reservations,
+                               total_sales=total_sales,
+                               seating_chart=seating_chart)
 
     return render_template("admin.html")
 
 @app.route("/delete_reservation/<int:reservation_id>", methods=["POST"])
 def delete_reservation(reservation_id):
-    """Delete a reservation (logic will be added later)."""
-    # TODO: Handle deleting reservation (later)
-    pass
+    reservation = Reservation.query.get_or_404(reservation_id)
+    db.session.delete(reservation)
+    db.session.commit()
+    flash("Success. The Reservation for {first_name} was successfully deleted.")
+    return redirect(url_for('admin'))
 
 # =============================
 # MAIN
 # =============================
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)

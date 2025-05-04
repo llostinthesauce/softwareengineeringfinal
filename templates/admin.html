@@ -18,26 +18,37 @@
     <div class="div-container">
         <h1>Admin Panel</h1>
 
-        {% if not session.get('admin_logged_in') %}
-            <!-- Admin Login Form -->
-            <form method="POST" action="{{ url_for('admin') }}">
-                <label for="username">Username:</label>
-                <input type="text" name="username" id="username" required>
+        <!-- Error Code -->
+        {% if error %}
+        <p style="color: red;">{{ error }}</p>
+        {% endif %}
 
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password" required>
+        {% if session.get('admin_logged_in') %}
+            <!-- Seating Chart -->
+<h2>Seating Chart</h2>
+<div style="background-color: #2a2a3b; padding: 20px; border-radius: 12px; display: inline-block;">
+    <pre style="font-size: 18px; text-align: left;">
+{% for row in seating_chart %}
+[{{ row | join(', ') }}]
+{% endfor %}
+    </pre>
+</div>
 
-                <input type="submit" value="Login">
-            </form>
-        {% else %}
-            <!-- Admin Dashboard View -->
-            <h2>Reservations Overview</h2>
+
+
+            </pre>
+
+            <!-- Total Sales -->
+            <h3 style="margin-top: 10px;">Total Sales: ${{ total_sales }}</h3>
+
+            <!-- Reservations Overview -->
+            <h2 style="margin-top: 40px;">Reservations Overview</h2>
 
             {% if reservations %}
                 <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; margin-top: 20px;">
                     <tr>
                         <th>Passenger Name</th>
-                        <th>Seat (Row, Column)</th>
+                        <th>Seat (Row, Seat)</th>
                         <th>eTicket Number</th>
                         <th>Created</th>
                         <th>Delete</th>
@@ -45,7 +56,7 @@
                     {% for res in reservations %}
                     <tr>
                         <td>{{ res.passengerName }}</td>
-                        <td>Row {{ res.seatRow }}, Column {{ res.seatColumn }}</td>
+                        <td>Row {{ res.seatRow + 1}}, Seat {{ res.seatColumn }}</td>
                         <td>{{ res.eTicketNumber }}</td>
                         <td>{{ res.created }}</td>
                         <td>
@@ -56,13 +67,22 @@
                     </tr>
                     {% endfor %}
                 </table>
-
-                <h3 style="margin-top: 30px;">Total Sales: ${{ total_sales }}</h3>
-
             {% else %}
                 <p>No reservations found.</p>
             {% endif %}
         {% endif %}
+
+        <!-- Admin Login Form at the bottom -->
+        <h2 style="margin-top: 50px;">Admin Login</h2>
+        <form method="POST" action="{{ url_for('admin') }}">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" required>
+
+            <input type="submit" value="Login">
+        </form>
     </div>
 
 </body>
