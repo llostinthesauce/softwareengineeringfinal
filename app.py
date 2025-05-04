@@ -86,7 +86,7 @@ def admin():
         if admin:
             session['admin_logged_in'] = True
         else:
-            return render_template("admin.html", error="Invalid username/password com ")
+            return render_template("admin.html", error="Invalid username/password combination.")
 
     if session.get('admin_logged_in'):
         reservations = Reservation.query.all()
