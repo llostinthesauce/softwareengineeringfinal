@@ -29,5 +29,29 @@
         </div>
     </div>
 
+    <!--Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Reservation Form -->
+     <h2>Make a Reservation</h2>
+     <form method="POST" action="{{ url_for('reserve') }}">
+        <label for="first_name">First Name:</label><br>
+        <input type="text" id="first_name" name="first_name" required><br><br>
+        <label for="last_name">Last Name:</label><br>
+        <input type="text" id="last_name" name="last_name" required><br><br>
+        <label for="seat_row">Seat Row (0-11):</label><br>
+        <input type="number" id="seat_row" name="seat_row" min="0" max="11" required><br><br>
+        <label for="seat_column">Seat Column (0-3):</label><br>
+        <input type="number" id="seat_column" name="seat_column" min="0" fmax="3" required><br><br>
+        <button type="submit">Reserve Seat</button>
+     </form>
 </body>
 </html>
