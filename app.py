@@ -56,8 +56,35 @@ def index():
 def reserve_seat():
     """Seat reservation page."""
     if request.method == "POST":
-        # TODO: Handle reservation form submission (later) - note from maddie. Please make first name entry labeled 'first_name'
-        pass
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
+        seat_row = (request.form.get("seat_row"))
+        seat_column = int(request.form.get("seat_column"))
+
+        if not (0 <= seat_row <12 and 0 <= seat_column < 4):
+            flash("Invalid seat selection.", "error")
+            return redirect(url_for("reserve"))        
+        
+        existing = Reservation.query.filter_by(seatRow=seat_row, seatColumn=seat_column)
+        if existing:
+            flash("Seat is already taken. Please choose another seat.", "error")
+            return redirect(url_for("reserve"))
+        
+        e_ticket = f"{first_name[0].upper()}{last_name[0].upper()}-{seat_row + 1}{seat_column + 1}"
+
+        passenger_name = f"{first_name} {last_name}"
+        
+        new_reservation = Reservation(
+            passengerName=passenger_name,
+            seatRow=seat_row,
+            seatColumn=seat_column,
+            eTicketNumber=e_ticket
+        )
+        db.session.add(new_reservation)
+        db.session.commit()
+
+        flash(f"Reservation successful! Your e-ticket code is {e_ticket}", "success")
+        return redirect(url_for("reserve"))
 
     reservations = Reservation.query.all()
 
