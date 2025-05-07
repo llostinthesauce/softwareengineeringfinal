@@ -144,9 +144,10 @@ def admin():
 def delete_reservation(reservation_id):
     """Delete a reservation."""
     reservation = Reservation.query.get_or_404(reservation_id)
+    passenger_name = reservation.passengerName
     db.session.delete(reservation)
     db.session.commit()
-    flash("Reservation successfully deleted.", "admin")
+    flash(f"Success. The reservation for {passenger_name} has been deleted.", "success")
     return redirect(url_for('admin'))
 
 @app.route("/logout", methods=["POST"])

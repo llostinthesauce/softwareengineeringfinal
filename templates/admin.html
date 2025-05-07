@@ -14,6 +14,15 @@
         <a href="{{ url_for('reserve_seat') }}">Reservations</a>
     </div>
 
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash-message {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
     <!-- Admin Container -->
     <div class="div-container">
         <h1>Admin Panel</h1>
