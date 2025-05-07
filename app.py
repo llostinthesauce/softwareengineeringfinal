@@ -58,7 +58,7 @@ def reserve_seat():
     if request.method == "POST":
         first_name = request.form.get("first_name")
         last_name = request.form.get("last_name")
-        seat_row = (request.form.get("seat_row"))
+        seat_row = int(request.form.get("seat_row"))
         seat_column = int(request.form.get("seat_column"))
 
         if not (0 <= seat_row <12 and 0 <= seat_column < 4):
@@ -68,7 +68,7 @@ def reserve_seat():
         existing = Reservation.query.filter_by(seatRow=seat_row, seatColumn=seat_column)
         if existing:
             flash("Seat is already taken. Please choose another seat.", "error")
-            return redirect(url_for("reserve"))
+            return redirect(url_for("reserve_seat"))
         
         e_ticket = f"{first_name[0].upper()}{last_name[0].upper()}-{seat_row + 1}{seat_column + 1}"
 
