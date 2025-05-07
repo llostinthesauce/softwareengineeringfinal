@@ -1,8 +1,8 @@
-# FINAL STRUCTURED app.py
-
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 import os
+import random
+import string
 
 # =============================
 # SETUP
@@ -12,7 +12,7 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'reservations.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'reservations.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -43,6 +43,21 @@ def get_cost_matrix():
     """Generate the 12x4 seat cost matrix."""
     return [[100, 75, 50, 100] for _ in range(12)]
 
+def generate_eticket(first_name, last_name):
+    """Generate a random e-ticket number."""
+    initials = first_name[0].upper() + last_name[0].upper()
+    random_letters = ''.join(random.choice(string.ascii_letters) for _ in range(6))
+    suffix = "OTC4320"
+    return f"{initials}{random_letters}{suffix}"
+
+def build_seating_chart(reservations):
+    """Create a 12x4 seating chart with 'O' for available and 'X' for reserved seats."""
+    seating_chart = [['O' for _ in range(4)] for _ in range(12)]
+    for res in reservations:
+        if 0 <= res.seatRow < 12 and 0 <= res.seatColumn < 4:
+            seating_chart[res.seatRow][res.seatColumn] = 'X'
+    return seating_chart
+
 # =============================
 # ROUTES
 # =============================
@@ -56,24 +71,30 @@ def index():
 def reserve_seat():
     """Seat reservation page."""
     if request.method == "POST":
-        first_name = request.form.get("first_name")
-        last_name = request.form.get("last_name")
-        seat_row = int(request.form.get("seat_row"))
-        seat_column = int(request.form.get("seat_column"))
+        first_name = request.form.get("first_name", "").strip()
+        last_name = request.form.get("last_name", "").strip()
+        seat_row = request.form.get("seat_row")
+        seat_column = request.form.get("seat_column")
 
-        if not (0 <= seat_row <12 and 0 <= seat_column < 4):
-            flash("Invalid seat selection.", "error")
-            return redirect(url_for("reserve"))        
-        
-        existing = Reservation.query.filter_by(seatRow=seat_row, seatColumn=seat_column)
-        if existing:
+        # Validate seat row and column input
+        try:
+            seat_row = int(seat_row)
+            seat_column = int(seat_column)
+            if not (0 <= seat_row < 12 and 0 <= seat_column < 4):
+                flash("Invalid seat selection. Row must be 0-11 and column must be 0-3.", "error")
+                return redirect(url_for("reserve_seat"))
+        except (ValueError, TypeError):
+            flash("Please enter valid numeric values for seat row and column.", "error")
+            return redirect(url_for("reserve_seat"))
+
+        # Check if seat is already taken
+        if Reservation.query.filter_by(seatRow=seat_row, seatColumn=seat_column).first():
             flash("Seat is already taken. Please choose another seat.", "error")
             return redirect(url_for("reserve_seat"))
-        
-        e_ticket = f"{first_name[0].upper()}{last_name[0].upper()}-{seat_row + 1}{seat_column + 1}"
 
+        # Create reservation
+        e_ticket = generate_eticket(first_name, last_name)
         passenger_name = f"{first_name} {last_name}"
-        
         new_reservation = Reservation(
             passengerName=passenger_name,
             seatRow=seat_row,
@@ -84,47 +105,33 @@ def reserve_seat():
         db.session.commit()
 
         flash(f"Reservation successful! Your e-ticket code is {e_ticket}", "success")
-        return redirect(url_for("reserve"))
+        return redirect(url_for("reserve_seat"))
 
+    # Build seating chart for display
     reservations = Reservation.query.all()
-
-    # Start with fresh 12x4 matrix (copy structure)
-    base_matrix = get_cost_matrix()
-    seating_chart = [['O' for _ in range(4)] for _ in range(12)]  # only showing O/X, not prices
-
-    # Mark reserved seats
-    for res in reservations:
-        if 0 <= res.seatRow < 12 and 0 <= res.seatColumn < 4:
-            seating_chart[res.seatRow][res.seatColumn] = 'X'
+    seating_chart = build_seating_chart(reservations)
 
     return render_template("reserve.html", seating_chart=seating_chart)
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
+    """Admin login and dashboard."""
     if request.method == "POST":
-        username = request.form["username"].strip()
-        password = request.form["password"].strip()
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
 
         if not username or not password:
             return render_template("admin.html", error="Please enter both username and password.")
 
-        admin = Admin.query.filter_by(username=username, password=password).first()
-
-        if admin:
+        if Admin.query.filter_by(username=username, password=password).first():
             session['admin_logged_in'] = True
         else:
             return render_template("admin.html", error="Invalid username/password combination.")
 
     if session.get('admin_logged_in'):
         reservations = Reservation.query.all()
-        cost_matrix = get_cost_matrix()
-        seating_chart = [['O' for _ in range(4)] for _ in range(12)]
-        total_sales = 0
-
-        for res in reservations:
-            row, col = res.seatRow, res.seatColumn
-            seating_chart[row][col] = 'X'
-            total_sales += cost_matrix[row][col]
+        seating_chart = build_seating_chart(reservations)
+        total_sales = sum(get_cost_matrix()[res.seatRow][res.seatColumn] for res in reservations)
 
         return render_template("admin.html",
                                reservations=reservations,
@@ -135,11 +142,19 @@ def admin():
 
 @app.route("/delete_reservation/<int:reservation_id>", methods=["POST"])
 def delete_reservation(reservation_id):
+    """Delete a reservation."""
     reservation = Reservation.query.get_or_404(reservation_id)
     db.session.delete(reservation)
     db.session.commit()
-    flash("Success. The Reservation for {first_name} was successfully deleted.")
+    flash("Reservation successfully deleted.", "admin")
     return redirect(url_for('admin'))
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    """Log out the admin."""
+    session.pop("admin_logged_in", None)
+    flash("You have been logged out.", "admin")
+    return redirect(url_for("admin"))
 
 # =============================
 # MAIN

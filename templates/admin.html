@@ -18,28 +18,36 @@
     <div class="div-container">
         <h1>Admin Panel</h1>
 
-        <!-- Error Code -->
+        <!-- Error Messages -->
         {% if error %}
         <p style="color: red;">{{ error }}</p>
         {% endif %}
 
         {% if session.get('admin_logged_in') %}
+
+            <!-- Logout Button -->
+            <form method="POST" action="{{ url_for('logout') }}" style="margin-bottom: 20px;">
+                <button type="submit">Logout</button>
+            </form>
+
             <!-- Seating Chart -->
-<h2>Seating Chart</h2>
-<div style="background-color: #2a2a3b; padding: 20px; border-radius: 12px; display: inline-block;">
-    <pre style="font-size: 18px; text-align: left;">
-{% for row in seating_chart %}
-[{{ row | join(', ') }}]
-{% endfor %}
-    </pre>
-</div>
+            <h2>Seating Chart</h2>
+            <p><strong>X</strong> = Reserved Seat &nbsp; : &nbsp; <strong>O</strong> = Available Seat</p>
 
-
-
-            </pre>
+            <div class="seating-chart">
+                {% for row in seating_chart %}
+                    {% for seat in row %}
+                        {% if seat == 'X' %}
+                            <span class="reserved">X</span>
+                        {% else %}
+                            <span class="available">O</span>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
 
             <!-- Total Sales -->
-            <h3 style="margin-top: 10px;">Total Sales: ${{ total_sales }}</h3>
+            <h3 style="margin-top: 20px;">Total Sales: ${{ total_sales }}</h3>
 
             <!-- Reservations Overview -->
             <h2 style="margin-top: 40px;">Reservations Overview</h2>
@@ -56,7 +64,7 @@
                     {% for res in reservations %}
                     <tr>
                         <td>{{ res.passengerName }}</td>
-                        <td>Row {{ res.seatRow + 1}}, Seat {{ res.seatColumn }}</td>
+                        <td>Row {{ res.seatRow }}, Seat {{ res.seatColumn }}</td>
                         <td>{{ res.eTicketNumber }}</td>
                         <td>{{ res.created }}</td>
                         <td>
@@ -72,17 +80,19 @@
             {% endif %}
         {% endif %}
 
-        <!-- Admin Login Form at the bottom -->
+        <!-- Admin Login Form (only if not logged in) -->
+        {% if not session.get('admin_logged_in') %}
         <h2 style="margin-top: 50px;">Admin Login</h2>
         <form method="POST" action="{{ url_for('admin') }}">
-            <label for="username">Username:</label>
-            <input type="text" name="username" id="username" required>
+            <label for="username">Username:</label><br>
+            <input type="text" name="username" id="username" required><br><br>
 
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" required>
+            <label for="password">Password:</label><br>
+            <input type="password" name="password" id="password" required><br><br>
 
             <input type="submit" value="Login">
         </form>
+        {% endif %}
     </div>
 
 </body>

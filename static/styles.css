@@ -16,6 +16,7 @@ body {
     background-color: #1e1e2f;
     padding: 10px 0;
     text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .menu a {
@@ -23,10 +24,15 @@ body {
     text-decoration: none;
     margin: 0 15px;
     font-weight: bold;
+    font-size: 18px;
+}
+
+.menu a:hover {
+    color: #ffffff;
 }
 
 /* Main Container */
-.div-container {
+.div-container, .splash-container {
     width: 90%;
     max-width: 1000px;
     background-color: #1e1e2f;
@@ -66,13 +72,15 @@ input, select {
 input[type="submit"], button, a.button {
     background-color: #007bff;
     color: #ffffff;
-    padding: 10px 16px;
+    padding: 15px 30px;
     border: none;
     border-radius: 6px;
     text-decoration: none;
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 input[type="submit"]:hover,
@@ -98,4 +106,67 @@ img {
     margin-top: 30px;
     border: 2px solid #61dafb;
     border-radius: 8px;
+}
+
+/* Seating Chart */
+.seating-chart {
+    display: grid;
+    grid-template-columns: repeat(4, 40px);
+    gap: 10px;
+    background-color: #2a2a3b;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 30px auto; /* Centering the grid */
+    justify-content: center; /* Center content */
+}
+
+.seating-chart span {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    background-color: #444;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 18px;
+}
+
+.seating-chart .reserved {
+    background-color: #d9534f;
+}
+
+.seating-chart .available {
+    background-color: #5cb85c;
+}
+
+/* Splash Container */
+.splash-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+}
+
+/* Menu Buttons */
+.menu-buttons {
+    margin-top: 20px;
+}
+
+.menu-buttons button {
+    background-color: #5cb85c;
+    color: #ffffff;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    margin: 10px;
+    transition: background-color 0.3s;
+}
+
+.menu-buttons button:hover {
+    background-color: #4cae4c;
 }

@@ -17,41 +17,54 @@
     <!-- Reservation Container -->
     <div class="div-container">
         <h1>Reserve Your Seat</h1>
+
+        <!-- Seating Chart -->
         <h2>Seating Chart</h2>
         <p><strong>X</strong> = Reserved Seat &nbsp; : &nbsp; <strong>O</strong> = Available Seat</p>
 
-        <div style="background-color: #2a2a3b; padding: 20px; border-radius: 12px; display: inline-block;">
-            <pre style="font-size: 18px; text-align: left;">
-{% for row in seating_chart %}
-{{ row }}
-{% endfor %}
-            </pre>
+        <div class="seating-chart">
+            {% for row in seating_chart %}
+                {% for seat in row %}
+                    {% if seat == 'X' %}
+                        <span class="reserved">X</span>
+                    {% else %}
+                        <span class="available">O</span>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
         </div>
-    </div>
 
-    <!--Flash Messages -->
+    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         <ul class="flashes">
             {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
+                {% if category != "admin" %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endif %}
             {% endfor %}
         </ul>
     {% endif %}
     {% endwith %}
 
     <!-- Reservation Form -->
-     <h2>Make a Reservation</h2>
-     <form method="POST" action="{{ url_for('reserve_seat') }}">
-        <label for="first_name">First Name:</label><br>
-        <input type="text" id="first_name" name="first_name" required><br><br>
-        <label for="last_name">Last Name:</label><br>
-        <input type="text" id="last_name" name="last_name" required><br><br>
-        <label for="seat_row">Seat Row (0-11):</label><br>
-        <input type="number" id="seat_row" name="seat_row" min="0" max="11" required><br><br>
-        <label for="seat_column">Seat Column (0-3):</label><br>
-        <input type="number" id="seat_column" name="seat_column" min="0" fmax="3" required><br><br>
-        <button type="submit">Reserve Seat</button>
-     </form>
+    <div class="form-container">
+        <h2>Make a Reservation</h2>
+        <form method="POST" action="{{ url_for('reserve_seat') }}">
+            <label for="first_name">First Name:</label><br>
+            <input type="text" id="first_name" name="first_name" required><br><br>
+            
+            <label for="last_name">Last Name:</label><br>
+            <input type="text" id="last_name" name="last_name" required><br><br>
+            
+            <label for="seat_row">Seat Row (0-11):</label><br>
+            <input type="number" id="seat_row" name="seat_row" min="0" max="11" required><br><br>
+            
+            <label for="seat_column">Seat Column (0-3):</label><br>
+            <input type="number" id="seat_column" name="seat_column" min="0" max="3" required><br><br>
+            
+            <button type="submit">Reserve Seat</button>
+        </form>
+    </div>
 </body>
 </html>
