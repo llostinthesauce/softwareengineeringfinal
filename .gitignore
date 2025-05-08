@@ -1,0 +1,8 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Flask instance folder (contains sensitive runtime data)
+instance/
+
+# Mac system files
+.DS_Store
